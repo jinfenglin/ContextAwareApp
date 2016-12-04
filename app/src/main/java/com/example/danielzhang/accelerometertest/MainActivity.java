@@ -1,16 +1,5 @@
 package com.example.danielzhang.accelerometertest;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-
-import org.achartengine.ChartFactory;
-import org.achartengine.chart.PointStyle;
-import org.achartengine.model.XYMultipleSeriesDataset;
-import org.achartengine.model.XYSeries;
-import org.achartengine.renderer.XYMultipleSeriesRenderer;
-import org.achartengine.renderer.XYSeriesRenderer;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -40,6 +29,17 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+
+import org.achartengine.ChartFactory;
+import org.achartengine.chart.PointStyle;
+import org.achartengine.model.XYMultipleSeriesDataset;
+import org.achartengine.model.XYSeries;
+import org.achartengine.renderer.XYMultipleSeriesRenderer;
+import org.achartengine.renderer.XYSeriesRenderer;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
 
 public class MainActivity extends Activity implements SensorEventListener,
         OnClickListener, ConnectionCallbacks,
@@ -144,7 +144,7 @@ public class MainActivity extends Activity implements SensorEventListener,
 
             Sensor sensor = event.sensor;
             if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                //TODO: get values
+                //jTODO: get values
                 long timestamp = System.currentTimeMillis();
                 if (timestamp - 100 > lastTimestamp || timestamp == 0) {
                     long diffTime = (timestamp - lastTimestamp);
@@ -167,13 +167,15 @@ public class MainActivity extends Activity implements SensorEventListener,
                     last_x = x;
                     last_y = y;
                     last_z = z;
-                    if (shakeCount>1)
+                    if (shakeCount>0)
                     {
                         t.setText("Exercising");
                         Toast.makeText(this, "exercise",Toast.LENGTH_SHORT).show();
                         shakeCount=0;
                         //TaskManager.killService("blueTooth"); Test blueTooth
-                        TaskManager.killProcessByName("", this);
+                        TaskManager.killService("wifi", this);
+                        //TaskManager.findProcessNameByPID(10,this);
+                        //TaskManager.killProcessByName("com.tencent.mm", this);
                     }
 //
 //                    if (timestamp >timeUpperBound)
