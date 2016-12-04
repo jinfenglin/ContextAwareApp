@@ -4,7 +4,11 @@ import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 
+import android.content.Intent;
 import android.util.Log;
+
+import com.jaredrummler.android.processes.AndroidProcesses;
+import com.jaredrummler.android.processes.models.AndroidAppProcess;
 
 import java.util.List;
 
@@ -24,10 +28,11 @@ public class TaskManager {
     public static String findProcessNameByPID(int pid, Context context) {
         String processName = "";
         ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> runningProcesses = manager.getRunningAppProcesses();
-        for (ActivityManager.RunningAppProcessInfo process : runningProcesses) {
+        //List<ActivityManager.RunningAppProcessInfo> runningProcesses = manager.getRunningAppProcesses();
+        List<AndroidAppProcess> runningProcesses = AndroidProcesses.getRunningAppProcesses();
+        for (AndroidAppProcess process : runningProcesses) {
             if (process.pid == pid)
-                processName = process.processName;
+                processName = process.name;
         }
         return processName;
     }
@@ -40,6 +45,10 @@ public class TaskManager {
         }
     }
 
+    public static void launchApplication(String packageName, Context context) {
+        Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+        context.startActivity(intent);
+    }
 
     private static boolean setBluetooth(boolean enable) {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();

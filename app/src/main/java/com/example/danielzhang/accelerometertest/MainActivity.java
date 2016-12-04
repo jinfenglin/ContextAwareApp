@@ -173,7 +173,12 @@ public class MainActivity extends Activity implements SensorEventListener,
                         Toast.makeText(this, "exercise",Toast.LENGTH_SHORT).show();
                         shakeCount=0;
                         //TaskManager.killService("blueTooth"); Test blueTooth
-                        TaskManager.killProcessByName("", this);
+                        //TaskManager.killProcessByName("com.tencent.mm", this);
+                        //t.setText("wechet killed");
+
+                        TaskManager.launchApplication("com.google.android.music", this);
+                        t.setText("Open google music");
+
                     }
 //
 //                    if (timestamp >timeUpperBound)
