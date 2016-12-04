@@ -5,7 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 
 import android.content.Intent;
-import android.util.Log;
+import android.net.wifi.WifiManager;
 
 import com.jaredrummler.android.processes.AndroidProcesses;
 import com.jaredrummler.android.processes.models.AndroidAppProcess;
@@ -38,17 +38,36 @@ public class TaskManager {
     }
 
     //TODO change the service name into enum type
-    public static void killService(String serviceName) {
+    public static void killService(String serviceName, Context context) {
         switch (serviceName) {
             case "blueTooth":
                 setBluetooth(false);
+            case "wifi":
+                setWifi(false, context);
+            default:
+                throw new RuntimeException("No such service");
         }
     }
+
 
     public static void launchApplication(String packageName, Context context) {
         Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
         context.startActivity(intent);
     }
+
+    private static boolean setWifi(boolean enable, Context context){
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        boolean isEnabled = wifiManager.isWifiEnabled();
+        if(enable && !isEnabled){
+            wifiManager.setWifiEnabled(true);
+            return true;
+        } else if(!enable && isEnabled){
+            wifiManager.setWifiEnabled(false);
+            return false;
+        }
+        return true;
+    }
+
 
     private static boolean setBluetooth(boolean enable) {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -60,40 +79,6 @@ public class TaskManager {
         }
         // No need to change bluetooth state
         return true;
-    }
-
-    /*@Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_current_state);
-
-        Button runningApp = (Button) findViewById(R.id.runningApp);
-        runningApp.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                String nameOfProcess = "com.example.filepath";
-                ActivityManager manager;
-                manager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
-                List<ActivityManager.RunningAppProcessInfo> listOfProcesses = manager.getRunningAppProcesses();
-                for (ActivityManager.RunningAppProcessInfo process : listOfProcesses) {
-                    if (process.processName.contains(nameOfProcess)) {
-                        Log.e("Proccess", process.processName + " : " + process.pid);
-                        android.os.Process.killProcess(process.pid);
-                        android.os.Process.sendSignal(process.pid, android.os.Process.SIGNAL_KILL);
-                        manager.killBackgroundProcesses(process.processName);
-                        break;
-                    }
-                }
-            }
-        });
-
-        String state = getState();
-    }*/
-
-    /**
-     * Determine User State
-     **/
-    public String getState() {
-        return "Sleeping";
     }
 
 }
