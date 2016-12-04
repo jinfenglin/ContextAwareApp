@@ -167,13 +167,13 @@ public class MainActivity extends Activity implements SensorEventListener,
                     last_x = x;
                     last_y = y;
                     last_z = z;
-                    if (shakeCount>5)
+                    if (shakeCount>1)
                     {
                         t.setText("Exercising");
                         Toast.makeText(this, "exercise",Toast.LENGTH_SHORT).show();
                         shakeCount=0;
-                        TaskManager.killService("blueTooth");
-
+                        //TaskManager.killService("blueTooth"); Test blueTooth
+                        TaskManager.killProcessByName("", this);
                     }
 //
 //                    if (timestamp >timeUpperBound)

@@ -1,23 +1,42 @@
 package com.example.danielzhang.accelerometertest;
 
+import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
+
+import android.util.Log;
+
+import java.util.List;
+
 
 public class TaskManager {
-    private static TaskManager taskManager = new TaskManager();
-    private TaskManager(){
 
+    public static void killProcessByName(String processName, Context context) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        manager.killBackgroundProcesses(processName);
     }
-    public TaskManager getTaskManger() {
-        return taskManager;
-    }
-    public void killProcessByPid(String pid){
 
+    public static void killProcessByPID(int pid, Context context) {
+        String processName = findProcessNameByPID(pid, context);
+        killProcessByName(processName, context);
+    }
+
+    public static String findProcessNameByPID(int pid, Context context) {
+        String processName = "";
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningProcesses = manager.getRunningAppProcesses();
+        for (ActivityManager.RunningAppProcessInfo process : runningProcesses) {
+            if (process.pid == pid)
+                processName = process.processName;
+        }
+        return processName;
     }
 
     //TODO change the service name into enum type
-    public static void killService(String serviceName){
-        switch (serviceName){
-            case "blueTooth": setBluetooth(false);
+    public static void killService(String serviceName) {
+        switch (serviceName) {
+            case "blueTooth":
+                setBluetooth(false);
         }
     }
 
@@ -27,8 +46,7 @@ public class TaskManager {
         boolean isEnabled = bluetoothAdapter.isEnabled();
         if (enable && !isEnabled) {
             return bluetoothAdapter.enable();
-        }
-        else if(!enable && isEnabled) {
+        } else if (!enable && isEnabled) {
             return bluetoothAdapter.disable();
         }
         // No need to change bluetooth state
