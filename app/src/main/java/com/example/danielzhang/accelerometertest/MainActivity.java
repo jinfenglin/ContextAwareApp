@@ -36,11 +36,19 @@ import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
+import org.apache.http.client.utils.URIBuilder;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+
+import cz.msebera.android.httpclient.client.HttpClient;
+import cz.msebera.android.httpclient.client.methods.HttpGet;
+import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 
 public class MainActivity extends Activity implements SensorEventListener,
         OnClickListener, ConnectionCallbacks,
@@ -145,7 +153,7 @@ public class MainActivity extends Activity implements SensorEventListener,
 
             Sensor sensor = event.sensor;
             if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                //jTODO: get values
+                //TODO: get values
                 long timestamp = System.currentTimeMillis();
                 if (timestamp - 100 > lastTimestamp || timestamp == 0) {
                     long diffTime = (timestamp - lastTimestamp);
@@ -155,25 +163,88 @@ public class MainActivity extends Activity implements SensorEventListener,
                     double z = event.values[2];
                     double speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
 
-                    if (timestamp - lastShakeTime > 100 && speed > SHAKE_THRESHOLD) {
+                    if (timestamp - lastShakeTime>100&& speed > SHAKE_THRESHOLD) {
                         Toast.makeText(this, "shake detected w/ speed: " + speed, Toast.LENGTH_SHORT).show();
-                        if (timestamp - lastShakeTime < 1000)
+
+
+                        //   url = new URL("http://pushandpump.com/rest/save?activity=%22Exercise%22&timestamp=5");
+
+                        if (timestamp - lastShakeTime<1000)
                             shakeCount++;
-                        lastShakeTime = System.currentTimeMillis();
+                            lastShakeTime = System.currentTimeMillis();
 
                     }
 
-                    if (timestamp - lastShakeTime > 5000)
-                        t.setText("Normal");
+                    if (timestamp-lastShakeTime>5000)
+                    { t.setText("Normal");
+                        Thread thread = new Thread(new Runnable(){
+                            @Override
+                            public void run(){
+                                URI uri = null;
+                                try {
+                                    uri = new URIBuilder()
+                                            .setScheme("http")
+                                            .setHost("pushandpump.com")
+                                            .setPort(8080)
+                                            .setPath("/rest/save")
+                                            .addParameter("activity", "Normal")
+                                            .addParameter("timestamp", Long.toString(System.currentTimeMillis()))
+                                            .build();
+                                } catch (URISyntaxException e) {
+                                }
+                                HttpClient client = new DefaultHttpClient();
+
+
+                                HttpGet httpGet = new HttpGet(uri);
+                                try {
+                                    client.execute(httpGet);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                        thread.start();
+
+                    }
                     last_x = x;
                     last_y = y;
                     last_z = z;
-                    if (shakeCount > 5) {
+                    if (shakeCount > 1) {
                         t.setText("Exercising");
+                        Thread thread = new Thread(new Runnable(){
+                            @Override
+                            public void run(){
+                                URI uri = null;
+                                try {
+                                    uri = new URIBuilder()
+                                            .setScheme("http")
+                                            .setHost("pushandpump.com")
+                                            .setPort(8080)
+                                            .setPath("/rest/save")
+                                            .addParameter("activity", "Exercise")
+                                            .addParameter("timestamp", Long.toString(System.currentTimeMillis()))
+                                            .build();
+                                } catch (URISyntaxException e) {
+                                }
+                                HttpClient client = new DefaultHttpClient();
+
+
+                                HttpGet httpGet = new HttpGet(uri);
+                                try {
+                                    client.execute(httpGet);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                        thread.start();
+
                         Toast.makeText(this, "exercise", Toast.LENGTH_SHORT).show();
                         shakeCount = 0;
+                        TaskManager.startService("wifi", this);
+                        t.setText("turn on wifi");
                         TaskManager.startService("blueTooth", this);
-                        t.setText("turn on blue tooth");
+                        t.setText("turn on bluetooth");
                         TaskManager.killProcessByName("com.tencent.mm", this);
                         t.setText("wechet killed");
                         List<String> musics = TaskManager.getMp3Infos(getContentResolver());

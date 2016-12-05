@@ -4,13 +4,11 @@ import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ContentResolver;
 import android.content.Context;
-
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.provider.MediaStore;
-import android.support.v4.content.ContextCompat;
 
 import com.jaredrummler.android.processes.AndroidProcesses;
 import com.jaredrummler.android.processes.models.AndroidAppProcess;
@@ -49,8 +47,10 @@ public class TaskManager {
         switch (serviceName) {
             case "blueTooth":
                 setBluetooth(false);
+                break;
             case "wifi":
                 setWifi(false, context);
+                break;
             default:
                 throw new RuntimeException("No such service");
         }
@@ -60,8 +60,10 @@ public class TaskManager {
         switch (serviceName) {
             case "blueTooth":
                 setBluetooth(true);
+                break;
             case "wifi":
                 setWifi(true, context);
+                break;
             default:
                 throw new RuntimeException("No such service");
         }
