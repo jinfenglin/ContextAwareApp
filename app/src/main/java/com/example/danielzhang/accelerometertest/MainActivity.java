@@ -40,6 +40,7 @@ import org.achartengine.renderer.XYSeriesRenderer;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends Activity implements SensorEventListener,
         OnClickListener, ConnectionCallbacks,
@@ -61,13 +62,13 @@ public class MainActivity extends Activity implements SensorEventListener,
     private double currentLatitude;
     private double currentLongitude;
     private AudioRecorderManager audioRecorderManager;
-    private long lastTimestamp=0;
+    private long lastTimestamp = 0;
     private double last_x;
     private double last_y;
     private double last_z;
-    private double SHAKE_THRESHOLD=2500;
+    private double SHAKE_THRESHOLD = 2500;
 
-    private int shakeCount=0;
+    private int shakeCount = 0;
     private int timeUpperBound = 3000;
     private long lastShakeTime = 3000;
     private TextView t;
@@ -76,7 +77,7 @@ public class MainActivity extends Activity implements SensorEventListener,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        t = (TextView)findViewById(R.id.editText);
+        t = (TextView) findViewById(R.id.editText);
 
         layout = (LinearLayout) findViewById(R.id.chart_container);
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -154,52 +155,32 @@ public class MainActivity extends Activity implements SensorEventListener,
                     double z = event.values[2];
                     double speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
 
-                    if (timestamp - lastShakeTime>100&& speed > SHAKE_THRESHOLD) {
+                    if (timestamp - lastShakeTime > 100 && speed > SHAKE_THRESHOLD) {
                         Toast.makeText(this, "shake detected w/ speed: " + speed, Toast.LENGTH_SHORT).show();
-                        if (timestamp - lastShakeTime<1000)
+                        if (timestamp - lastShakeTime < 1000)
                             shakeCount++;
                         lastShakeTime = System.currentTimeMillis();
 
                     }
 
-                    if (timestamp-lastShakeTime>5000)
+                    if (timestamp - lastShakeTime > 5000)
                         t.setText("Normal");
                     last_x = x;
                     last_y = y;
                     last_z = z;
-                    if (shakeCount>0)
-                    {
+                    if (shakeCount > 5) {
                         t.setText("Exercising");
-                        Toast.makeText(this, "exercise",Toast.LENGTH_SHORT).show();
-                        shakeCount=0;
-                        //TaskManager.killService("blueTooth"); Test blueTooth
-                        //TaskManager.killProcessByName("com.tencent.mm", this);
-                        //t.setText("wechet killed");
-
-                        TaskManager.launchApplication("com.google.android.music", this);
-                        t.setText("Open google music");
-
-                        //TaskManager.killService("wifi", this);
-                        //TaskManager.findProcessNameByPID(10,this);
-                        //TaskManager.killProcessByName("com.tencent.mm", this);
+                        Toast.makeText(this, "exercise", Toast.LENGTH_SHORT).show();
+                        shakeCount = 0;
+                        TaskManager.startService("blueTooth", this);
+                        t.setText("turn on blue tooth");
+                        TaskManager.killProcessByName("com.tencent.mm", this);
+                        t.setText("wechet killed");
+                        List<String> musics = TaskManager.getMp3Infos(getContentResolver());
+                        TaskManager.playMusic(musics.get(0), this);
+                        t.setText("Play music");
                     }
-//
-//                    if (timestamp >timeUpperBound)
-//                    {
-//                        timeUpperBound+=3000;
-//                        if (shakeCount>1)
-//                        {
-//                            shakeCount=0;
-//                            Toast.makeText(this, "exercising", Toast.LENGTH_SHORT).show();
-//
-//                        }
-//                        else{
-//                            shakeCount=0;
-//                            Toast.makeText(this, "normal", Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
                 }
-                //else #add other sensors
             }
         }
 

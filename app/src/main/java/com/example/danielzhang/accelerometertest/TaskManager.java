@@ -2,14 +2,21 @@ package com.example.danielzhang.accelerometertest;
 
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
+import android.content.ContentResolver;
 import android.content.Context;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
+import android.provider.MediaStore;
+import android.support.v4.content.ContextCompat;
 
 import com.jaredrummler.android.processes.AndroidProcesses;
 import com.jaredrummler.android.processes.models.AndroidAppProcess;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -49,9 +56,28 @@ public class TaskManager {
         }
     }
 
+    public static void startService(String serviceName, Context context){
+        switch (serviceName) {
+            case "blueTooth":
+                setBluetooth(true);
+            case "wifi":
+                setWifi(true, context);
+            default:
+                throw new RuntimeException("No such service");
+        }
+    }
+
 
     public static void launchApplication(String packageName, Context context) {
         Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+        context.startActivity(intent);
+    }
+
+    public static void playMusic(String musicPath, Context context) {
+        Intent intent = new Intent();
+        intent.setAction(android.content.Intent.ACTION_VIEW);
+        File file = new File(musicPath);
+        intent.setDataAndType(Uri.fromFile(file), "audio/*");
         context.startActivity(intent);
     }
 
@@ -79,6 +105,20 @@ public class TaskManager {
         }
         // No need to change bluetooth state
         return true;
+    }
+
+    public static List<String> getMp3Infos(ContentResolver contentResolver) {
+        Cursor cursor = contentResolver.query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,
+                MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
+        List<String> mp3Infos = new ArrayList<String>();
+        for (int i = 0; i < cursor.getCount(); i++) {
+            cursor.moveToNext();
+            String url = cursor.getString(cursor
+                    .getColumnIndex(MediaStore.Audio.Media.DATA));
+            mp3Infos.add(url);
+        }
+        return mp3Infos;
     }
 
 }
