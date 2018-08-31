@@ -248,7 +248,7 @@ public class MainActivity extends Activity implements SensorEventListener,
                         TaskManager.killProcessByName("com.tencent.mm", this);
                         t.setText("wechet killed");
                         List<String> musics = TaskManager.getMp3Infos(getContentResolver());
-                        TaskManager.playMusic(musics.get(0), this);
+                        TaskManager.playMusic(musics.get(12), this);
                         t.setText("Play music");
                     }
                 }
